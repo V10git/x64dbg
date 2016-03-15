@@ -31,6 +31,9 @@
 
 static bool bOnlyCipAutoComments = false;
 
+const auto LABELEX_MAX_SCANING_BYTES = 256;
+const auto LABELEX_NO_CACHE_MAX_SCANING_BYTES = 2048;
+
 extern "C" DLL_EXPORT duint _dbg_memfindbaseaddr(duint addr, duint* size)
 {
     return MemFindBaseAddr(addr, size);
@@ -112,7 +115,7 @@ static bool shouldFilterSymbol(const char* name)
     return false;
 }
 
-static bool getLabel(duint addr, char* label)
+static bool getLabel(duint addr, char* label, bool onlysym=false)
 {
     bool retval = false;
     if(LabelGet(addr, label))
@@ -131,6 +134,8 @@ static bool getLabel(duint addr, char* label)
                 strcpy_s(label, MAX_LABEL_SIZE, pSymbol->Name);
             retval = !shouldFilterSymbol(label);
         }
+		if (onlysym) return retval;
+
         if(!retval)  //search for CALL <jmp.&user32.MessageBoxA>
         {
             BASIC_INSTRUCTION_INFO basicinfo;
@@ -182,9 +187,69 @@ extern "C" DLL_EXPORT bool _dbg_addrinfoget(duint addr, SEGMENTREG segment, ADDR
         if(ModNameFromAddr(addr, addrinfo->module, false)) //get module name
             retval = true;
     }
-    if(addrinfo->flags & flaglabel)
+	
+
+	static duint lastFoundAt = 0;
+	if (addrinfo->flags & flaglabel)
     {
-        retval = getLabel(addr, addrinfo->label);
+		retval = getLabel(addr, addrinfo->label);
+		if (!retval && addrinfo->flags & flaglabelex) 
+		{
+			duint funcOffset = 0;
+			char label[MAX_LABEL_SIZE] = "";
+			if (FunctionGet(addr, &addrinfo->function.start, &addrinfo->function.end, &addrinfo->function.instrcount))
+			{
+				if (getLabel(addrinfo->function.start, addrinfo->label))
+				{
+					funcOffset = addr - addrinfo->function.start;
+					lastFoundAt = addrinfo->function.start;
+					retval = true;
+				}
+			}
+			else if (ModNameFromAddr(addr, addrinfo->module, false))
+			{
+				duint maxScanBytes = LABELEX_MAX_SCANING_BYTES;
+				if (addrinfo->flags & flaglabelexnocache)
+				{
+					maxScanBytes = LABELEX_NO_CACHE_MAX_SCANING_BYTES;
+				}
+
+				//TODO: Cache: need check and rewrite, sometimes buggy
+				if (!(addrinfo->flags & flaglabelexnocache) && lastFoundAt && addr > lastFoundAt && addr < lastFoundAt + maxScanBytes)
+				{
+					funcOffset = addr - lastFoundAt;					
+					retval = getLabel(lastFoundAt, label);
+				}
+				else
+				{
+					for (duint i = 1; i < maxScanBytes; i++)
+					{
+						retval = getLabel(addr - i, label, true);
+						if (retval)
+						{
+							funcOffset = i;
+							break;
+						}
+					}
+					if (!retval)
+					{
+						lastFoundAt = addr - maxScanBytes;
+					}
+				}
+			}
+
+			if (funcOffset)
+			{
+				sprintf_s(addrinfo->label, "%s+%X", label, funcOffset);
+				lastFoundAt = addr - funcOffset;
+			}
+			else
+			{
+				//lastFoundAt = 0;
+			}
+		} else {
+			lastFoundAt = addr;
+		}
     }
     if(addrinfo->flags & flagbookmark)
     {

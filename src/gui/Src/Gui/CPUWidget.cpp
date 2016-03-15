@@ -24,9 +24,9 @@ CPUWidget::CPUWidget(QWidget* parent) : QWidget(parent), ui(new Ui::CPUWidget)
 
     mInfo = new CPUInfoBox();
     ui->mTopLeftLowerFrameLayout->addWidget(mInfo);
-    int height = mInfo->getHeight();
-    ui->mTopLeftLowerFrame->setMinimumHeight(height + 2);
-    ui->mTopLeftLowerFrame->setMaximumHeight(height + 2);
+    int fixedInfoHeight = mInfo->getHeight() + 4;
+    ui->mTopLeftLowerFrame->setMinimumHeight(fixedInfoHeight);
+    ui->mTopLeftLowerFrame->setMaximumHeight(fixedInfoHeight);
 
     connect(mDisas, SIGNAL(selectionChanged(dsint)), mInfo, SLOT(disasmSelectionChanged(dsint)));
 
@@ -49,7 +49,7 @@ CPUWidget::CPUWidget(QWidget* parent) : QWidget(parent), ui(new Ui::CPUWidget)
     ui->mTopRightFrameLayout->addWidget(button_changeview);
     ui->mTopRightFrameLayout->addWidget(scrollArea);
 
-    mDump = new CPUMultiDump(mDisas, 5, 0); //dump widget
+    mDump = new CPUMultiDump(mDisas, 10, 0); //dump widget
     ui->mBotLeftFrameLayout->addWidget(mDump);
 
     mStack = new CPUStack(mDump, 0); //stack widget

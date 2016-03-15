@@ -463,15 +463,24 @@ QString Disassembly::paintContent(QPainter* painter, dsint rowBase, int rowOffse
         }
 
         char comment[MAX_COMMENT_SIZE] = "";
-        if(DbgGetCommentAt(cur_addr, comment))
+        char module[MAX_MODULE_SIZE] = "";
+        char label[MAX_LABEL_SIZE] = "";
+        if(DbgGetCommentAt(cur_addr, comment) || (DbgGetModuleAt(cur_addr, module) && DbgGetLabelAt(cur_addr, SEG_DEFAULT, label)))
         {
             QString commentText;
             QColor backgroundColor;
-            if(comment[0] == '\1') //automatic comment
+            if(comment[0] == '\1' || comment[0] == 0) //automatic comment
             {
                 painter->setPen(mAutoCommentColor);
                 backgroundColor = mAutoCommentBackgroundColor;
-                commentText = QString(comment + 1);
+                if (comment[0] == 0)
+                {
+                    commentText = QString(module) + "." + QString(label);
+                }
+                else
+                {
+                    commentText = QString(comment + 1);
+                }
             }
             else //user comment
             {

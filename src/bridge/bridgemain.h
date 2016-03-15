@@ -98,7 +98,9 @@ typedef enum
     flagcomment = 4,
     flagbookmark = 8,
     flagfunction = 16,
-    flagloop = 32
+    flagloop = 32,
+	flaglabelex = 64,
+	flaglabelexnocache = 128,
 } ADDRINFOFLAGS;
 
 typedef enum
@@ -650,7 +652,7 @@ BRIDGE_IMPEXP bool DbgMemMap(MEMMAP* memmap);
 BRIDGE_IMPEXP bool DbgIsValidExpression(const char* expression);
 BRIDGE_IMPEXP bool DbgIsDebugging();
 BRIDGE_IMPEXP bool DbgIsJumpGoingToExecute(duint addr);
-BRIDGE_IMPEXP bool DbgGetLabelAt(duint addr, SEGMENTREG segment, char* text);
+BRIDGE_IMPEXP bool DbgGetLabelAt(duint addr, SEGMENTREG segment, char* text, bool extended = false, bool extended_cache = true);
 BRIDGE_IMPEXP bool DbgSetLabelAt(duint addr, const char* text);
 BRIDGE_IMPEXP void DbgClearLabelRange(duint start, duint end);
 BRIDGE_IMPEXP bool DbgGetCommentAt(duint addr, char* text);

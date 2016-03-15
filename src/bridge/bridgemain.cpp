@@ -310,13 +310,22 @@ BRIDGE_IMPEXP bool DbgIsJumpGoingToExecute(duint addr)
 }
 
 // FIXME required size of arg _text_?
-BRIDGE_IMPEXP bool DbgGetLabelAt(duint addr, SEGMENTREG segment, char* text) //(module.)+label
+BRIDGE_IMPEXP bool DbgGetLabelAt(duint addr, SEGMENTREG segment, char* text, bool extended, bool extended_cache) //(module.)+label
 {
     if(!text || !addr)
         return false;
     ADDRINFO info;
     memset(&info, 0, sizeof(info));
     info.flags = flaglabel;
+	if (extended)
+	{
+		info.flags |= flaglabelex;
+		if (!extended_cache)
+		{
+			info.flags |= flaglabelexnocache;
+		}
+	}
+
     if(!_dbg_addrinfoget(addr, segment, &info))
     {
         duint addr_ = 0;

@@ -1316,7 +1316,7 @@ QString RegistersView::getRegisterLabel(REGISTER_NAME register_selected)
     QString newText = QString("");
 
     bool hasString = DbgGetStringAt(register_value, string_text);
-    bool hasLabel = DbgGetLabelAt(register_value, SEG_DEFAULT, label_text);
+    bool hasLabel = DbgGetLabelAt(register_value, SEG_DEFAULT, label_text, true, false);
     bool hasModule = DbgGetModuleAt(register_value, module_text);
 
     if(hasString && !mONLYMODULEANDLABELDISPLAY.contains(register_selected))

@@ -85,7 +85,7 @@ void BreakpointsView::reloadData()
 
         QString label_text;
         char label[MAX_LABEL_SIZE] = "";
-        if(DbgGetLabelAt(wBPList.bp[wI].addr, SEG_DEFAULT, label))
+        if(DbgGetLabelAt(wBPList.bp[wI].addr, SEG_DEFAULT, label, true, false))
             label_text = "<" + QString(wBPList.bp[wI].mod) + "." + QString(label) + ">";
         else
             label_text = QString(wBPList.bp[wI].mod);
@@ -124,7 +124,7 @@ void BreakpointsView::reloadData()
 
         QString label_text;
         char label[MAX_LABEL_SIZE] = "";
-        if(DbgGetLabelAt(wBPList.bp[wI].addr, SEG_DEFAULT, label))
+        if(DbgGetLabelAt(wBPList.bp[wI].addr, SEG_DEFAULT, label, true, false))
             label_text = "<" + QString(wBPList.bp[wI].mod) + "." + QString(label) + ">";
         else
             label_text = QString(wBPList.bp[wI].mod);
@@ -163,7 +163,7 @@ void BreakpointsView::reloadData()
 
         QString label_text;
         char label[MAX_LABEL_SIZE] = "";
-        if(DbgGetLabelAt(wBPList.bp[wI].addr, SEG_DEFAULT, label))
+        if(DbgGetLabelAt(wBPList.bp[wI].addr, SEG_DEFAULT, label, true, false))
             label_text = "<" + QString(wBPList.bp[wI].mod) + "." + QString(label) + ">";
         else
             label_text = QString(wBPList.bp[wI].mod);

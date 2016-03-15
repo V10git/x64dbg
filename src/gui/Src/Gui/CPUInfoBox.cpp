@@ -227,7 +227,7 @@ void CPUInfoBox::disasmSelectionChanged(dsint parVA)
 
     // Function/label name
     char label[MAX_LABEL_SIZE];
-    if(DbgGetLabelAt(parVA, SEG_DEFAULT, label))
+    if(DbgGetLabelAt(parVA, SEG_DEFAULT, label, true, false))
         info += "<" + QString(label) + ">";
 
     setInfoLine(2, info);
